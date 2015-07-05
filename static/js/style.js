@@ -30,5 +30,3 @@ $.getJSON(broadStURL).addTo(map);
 
 
 
-
-

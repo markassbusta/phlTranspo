@@ -1,11 +1,3 @@
-/**
- * Add polygons from geojson on the map
- *
- * In addition to points, leaflet can display
- * polygons from geojson
- */
-
-// Center on Philadelphia
 var map = L.map('basic-map',{
 			zoomControl:true, maxZoom:19
 		}).fitBounds([[39.8713055112,-75.2530324737],[39.8835071073,-75.2352446046]]);
@@ -55,39 +47,35 @@ var artURL = "/static/data/airportArt.geojson"
 //	}).addTo(map)
 //});
 
-var artIcon = L.icon({
-	iconUrl: '/static/lib/images/art.png',
-	iconSize: [30,30]
-});
+var artsy = "/static/lib/images/art.png"
 
-var createMarker = function(feature,latlng){
-	var marker = L.marker(latlng, {icon: artIcon});
-	marker.bindPopup(feature.properties.EXHIBITION)
-	return marker
-}
+$.getJSON(artURL,function(data){
+	var artIcon = L.icon({
+		iconUrl: artsy,
+		iconSize: [30,30]
+	});
+	 var exhibits = L.geoJson(data,{
+		pointToLayer: function(feature,latlng){
+			var marker = L.marker(latlng,{icon: artIcon});
+			marker.bindPopup(feature.properties.EXHIBITION + '<br/>' + feature.properties.PATH);
+			return marker;
+		}
+	});
+	 var clusters = L.markerClusterGroup();
+	 clusters.addLayer(exhibits);
+	 map.addLayer(clusters);
+	});
 
-var displayExhibits = function(data){
-	L.geoJson(data,{
-		pointToLayer: createMarker
-	}).addTo(map);
-}
+//var clusters = L.markerClusterGroup();
+//clusters.addLayer(exhibits);
+//map.addLayer(clusters);
 
-$.getJSON(artURL, displayExhibits);
 
-function onLocationFound(e) {
-var mydate = new Date(e.timestamp);
-L.marker(e.latlng).addTo(map).bindPopup(mydate.toString());
-    
 
-}
 
-function onLocationError(e) {
-    alert("Unable to find your location. You may need to enable Geolocation.");
-}
 
-map.on('locationerror', onLocationError);
-map.on('locationfound', onLocationFound);
-map.locate({setView: true, maxZoom:12});
+
+
 
 
 
